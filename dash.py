@@ -261,16 +261,22 @@ def main():
             df[df["Location"].notna() & (df["Location"].str.strip() != "")]
             .groupby("Location")
             .size()
-            .reset_index(name="Number of Records")
+            .reset_index(name="Records")
         )
         region_df["Venue"] = region_df["Location"].map(VENUE_MAP)
+        region_df = region_df[region_df["Venue"].notna()]
 
-        # Reorder: move "Specialist Event" to bottom
-        spec = region_df[region_df["Location"] == "Specialist Event"]
-        region_df = region_df[region_df["Location"] != "Specialist Event"]
-        region_df = pd.concat([region_df.sort_values("Number of Records", ascending=False), spec], ignore_index=True)
+        region_df = region_df.rename(columns={"Location": "Region"})
+        spec = region_df[region_df["Region"] == "Specialist Event"]
+        region_df = region_df[region_df["Region"] != "Specialist Event"]
+        region_df = pd.concat([region_df.sort_values("Records", ascending=False), spec], ignore_index=True)
 
-        st.dataframe(region_df, use_container_width=True, hide_index=True)
+        st.markdown(
+            region_df[["Region", "Venue", "Records"]]
+            .to_html(index=False, border=0, classes="records-table"),
+            unsafe_allow_html=True
+        )
+        
 
     with tabs[4]:
         st.markdown("## ❓ Frequently Asked Questions")
