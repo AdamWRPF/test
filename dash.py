@@ -35,8 +35,6 @@ def load_data(path: Path) -> pd.DataFrame:
     df["Lift"] = df["Lift"].replace(LIFT_MAP).fillna(df["Lift"])
     df["Date_parsed"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Location"] = df["Location"].where(df["Location"].notna(), None)
-    df["Location"] = df["Location"].apply(lambda x: x.strip() if isinstance(x, str) else x)
-
     return df
 
 # ------------------------------------------------------------------
@@ -154,6 +152,8 @@ def render_table(filtered, sel, key=""):
         "Multi-ply": "Equipped",
         "Bare": "Raw"
     })
+
+    display_df = display_df.fillna("")  # ✅ Mask empty fields for clean display
 
     st.download_button(
         "📥 Download CSV",
