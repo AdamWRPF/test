@@ -237,7 +237,7 @@ def main():
         render_table(single_lifts, sel, key="single")
 
     with tabs[3]:
-        st.markdown("## 📍 Records by Location")
+        st.markdown("## 📍 Records by Region")
         location_counts = (
             filtered[filtered["Location"].str.strip() != ""]
             .groupby("Location")
