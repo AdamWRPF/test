@@ -254,8 +254,9 @@ Wraps are the same but you're wearing knee wraps and equipped is when you're wea
 **Q: How can I get a record updated or corrected?**  
 A: Please contact [events@wrpf.uk](mailto:events@wrpf.uk) with evidence or questions.
 
-**Q: Can I filter by federation or region?**  
-A: Not currently, but we’re working on it!
+**Q: What does Standard mean?**  
+A: This is just a record standard which has been selected from thousands of results data from OpenPowerlifting.
+To claim this records, you will need to break it by 0.5kg which you can do at any WRPF UK Event.
         """)
 
 if __name__ == "__main__":
