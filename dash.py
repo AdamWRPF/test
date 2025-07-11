@@ -222,7 +222,7 @@ def main():
     df = load_data(CSV_PATH)
     filtered, sel = render_filters(df)
 
-    tabs = st.tabs(["All Records", "Full Power", "Single Lifts", "By Location", "FAQ"])
+    tabs = st.tabs(["All Records", "Full Power", "Single Lifts", "Records by Region", "FAQ"])
 
     with tabs[0]:
         render_table(filtered, sel, key="all")
