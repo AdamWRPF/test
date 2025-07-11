@@ -34,7 +34,9 @@ def load_data(path: Path) -> pd.DataFrame:
     df["Testing"] = df["Division_raw"].str.endswith("DT").map({True: "Drug Tested", False: "Untested"})
     df["Lift"] = df["Lift"].replace(LIFT_MAP).fillna(df["Lift"])
     df["Date_parsed"] = pd.to_datetime(df["Date"], errors="coerce")
-    df["Location"] = df["Location"].astype(str).str.strip()
+    df["Location"] = df["Location"].where(df["Location"].notna(), None)
+    df["Location"] = df["Location"].apply(lambda x: x.strip() if isinstance(x, str) else x)
+
     return df
 
 # ------------------------------------------------------------------
