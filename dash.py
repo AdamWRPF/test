@@ -206,7 +206,6 @@ def render_table(filtered, sel, key=""):
 def main():
     st.set_page_config("WRPF UK Records", layout="wide")
 
-    # Navigation Buttons
     nav_cols = st.columns(4)
     nav_links = {
         "Memberships": "https://www.wrpf.uk/memberships",
@@ -223,7 +222,7 @@ def main():
     df = load_data(CSV_PATH)
     filtered, sel = render_filters(df)
 
-    tabs = st.tabs(["All Records", "Full Power", "Single Lifts", "FAQ"])
+    tabs = st.tabs(["All Records", "Full Power", "Single Lifts", "By Location", "FAQ"])
 
     with tabs[0]:
         render_table(filtered, sel, key="all")
@@ -238,6 +237,17 @@ def main():
         render_table(single_lifts, sel, key="single")
 
     with tabs[3]:
+        st.markdown("## 📍 Records by Location")
+        location_counts = (
+            filtered[filtered["Location"].str.strip() != ""]
+            .groupby("Location")
+            .size()
+            .reset_index(name="Number of Records")
+            .sort_values("Number of Records", ascending=False)
+        )
+        st.dataframe(location_counts, use_container_width=True)
+
+    with tabs[4]:
         st.markdown("## ❓ Frequently Asked Questions")
         st.markdown("""
 **Q: How often is this database updated?**  
@@ -247,16 +257,16 @@ A: We update the records shortly after each WRPF UK sanctioned event.
 A: It refers to divisions where athletes are subject to in-competition testing.
 
 **Q: What is the difference between Raw, Sleeves, Wraps and Equipped?**  
-A: Raw is single lfits only and means no supportive equipment other than a belt and wrist wraps were worn. 
-Sleeves is the division you fall under when wearing knee sleeves in a full power event. 
-Wraps are the same but you're wearing knee wraps and equipped is when you're wearing fully supportive suits.
+A: Raw is single lifts only and means no supportive equipment other than a belt and wrist wraps were worn.  
+Sleeves is the division you fall under when wearing knee sleeves in a full power event.  
+Wraps are the same but you're wearing knee wraps and Equipped is when you're wearing fully supportive suits.
 
 **Q: How can I get a record updated or corrected?**  
 A: Please contact [events@wrpf.uk](mailto:events@wrpf.uk) with evidence or questions.
 
 **Q: What does Standard mean?**  
-A: This is just a record standard which has been selected from thousands of results data from OpenPowerlifting.
-To claim this records, you will need to break it by 0.5kg which you can do at any WRPF UK Event.
+A: This is just a record standard selected from thousands of OpenPowerlifting entries.  
+To claim it, break it by at least 0.5kg at any WRPF UK event.
         """)
 
 if __name__ == "__main__":
