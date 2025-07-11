@@ -35,7 +35,6 @@ def load_data(path: Path) -> pd.DataFrame:
     df["Lift"] = df["Lift"].replace(LIFT_MAP).fillna(df["Lift"])
     df["Date_parsed"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Location"] = df["Location"].astype(str).str.strip()
-    df.fillna("", inplace=True)
     return df
 
 # ------------------------------------------------------------------
@@ -240,7 +239,7 @@ def main():
     with tabs[3]:
         st.markdown("## 📍 Records by Region")
         region_df = (
-            df[df["Location"].str.strip() != ""]
+            df[df["Location"].notna() & (df["Location"].str.strip() != "")]
             .groupby("Location")
             .size()
             .reset_index(name="Number of Records")
