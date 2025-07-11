@@ -18,6 +18,18 @@ DIVISION_ORDER = [
     "M40-49", "M50-59", "M60-69", "M70-79",
 ]
 
+VENUE_MAP = {
+    "Nottingham": "Nottingham Strong",
+    "North West": "Raw Strength Gym",
+    "East Coast": "Iron Warehouse Gym",
+    "East Midlands": "Horncastle Powerlifting",
+    "South West": "349 Barbell",
+    "South Midlands": "Spartan Fitness",
+    "West Midlands": "The Unit",
+    "North East": "Stag Fitness Centre",
+    "Specialist Event": "DOTD, Strength Wars etc"
+}
+
 # ------------------------------------------------------------------
 # Load data
 # ------------------------------------------------------------------
@@ -34,7 +46,10 @@ def load_data(path: Path) -> pd.DataFrame:
     df["Testing"] = df["Division_raw"].str.endswith("DT").map({True: "Drug Tested", False: "Untested"})
     df["Lift"] = df["Lift"].replace(LIFT_MAP).fillna(df["Lift"])
     df["Date_parsed"] = pd.to_datetime(df["Date"], errors="coerce")
+
     df["Location"] = df["Location"].where(df["Location"].notna(), None)
+    df["Location"] = df["Location"].apply(lambda x: x.strip() if isinstance(x, str) else x)
+
     return df
 
 # ------------------------------------------------------------------
@@ -65,7 +80,7 @@ def render_filters(df: pd.DataFrame):
         sel["testing_status"] = cols[2].selectbox("Testing", ["All", "Drug Tested", "Untested"], index=0)
         sel["equipment"] = cols[3].selectbox("Equipment", ["All"] + equipment_display, index=0)
         sel["weight_class"] = cols[4].selectbox("Weight", ["All"] + weight_opts, index=0)
-        sel["search"] = cols[5].text_input("Search e.g. '110 junior'", value=sel["search"])
+        sel["search"] = cols[5].text_input("Search e.g. '110 junior Manchester'", value=sel["search"])
 
         if st.button("🔄 Reset Filters"):
             st.session_state.filters = default_state.copy()
@@ -153,7 +168,7 @@ def render_table(filtered, sel, key=""):
         "Bare": "Raw"
     })
 
-    display_df = display_df.fillna("")  # ✅ Mask empty fields for clean display
+    display_df = display_df.fillna("")
 
     st.download_button(
         "📥 Download CSV",
@@ -208,6 +223,7 @@ def render_table(filtered, sel, key=""):
 def main():
     st.set_page_config("WRPF UK Records", layout="wide")
 
+    # Navigation Buttons
     nav_cols = st.columns(4)
     nav_links = {
         "Memberships": "https://www.wrpf.uk/memberships",
@@ -240,15 +256,21 @@ def main():
 
     with tabs[3]:
         st.markdown("## 📍 Records by Region")
+
         region_df = (
             df[df["Location"].notna() & (df["Location"].str.strip() != "")]
             .groupby("Location")
             .size()
             .reset_index(name="Number of Records")
-            .sort_values("Number of Records", ascending=False)
         )
-        html = region_df.to_html(index=False, border=0, classes="records-table")
-        st.markdown(html, unsafe_allow_html=True)
+        region_df["Venue"] = region_df["Location"].map(VENUE_MAP)
+
+        # Reorder: move "Specialist Event" to bottom
+        spec = region_df[region_df["Location"] == "Specialist Event"]
+        region_df = region_df[region_df["Location"] != "Specialist Event"]
+        region_df = pd.concat([region_df.sort_values("Number of Records", ascending=False), spec], ignore_index=True)
+
+        st.dataframe(region_df, use_container_width=True, hide_index=True)
 
     with tabs[4]:
         st.markdown("## ❓ Frequently Asked Questions")
@@ -268,8 +290,8 @@ Wraps are the same but you're wearing knee wraps and Equipped is when you're wea
 A: Please contact [events@wrpf.uk](mailto:events@wrpf.uk) with evidence or questions.
 
 **Q: What does Standard mean?**  
-A: This is just a record standard selected from thousands of OpenPowerlifting entries.  
-To claim it, break it by at least 0.5kg at any WRPF UK event.
+A: This is just a record standard which has been selected from thousands of results data from OpenPowerlifting.
+To claim this record, you will need to break it by 0.5kg which you can do at any WRPF UK Event.
         """)
 
 if __name__ == "__main__":
