@@ -65,7 +65,7 @@ def render_filters(df: pd.DataFrame):
         sel["testing_status"] = cols[2].selectbox("Testing", ["All", "Drug Tested", "Untested"], index=0)
         sel["equipment"] = cols[3].selectbox("Equipment", ["All"] + equipment_display, index=0)
         sel["weight_class"] = cols[4].selectbox("Weight", ["All"] + weight_opts, index=0)
-        sel["search"] = cols[5].text_input("Search e.g. '110 junior'", value=sel["search"])
+        sel["search"] = cols[5].text_input("Search e.g. '110 junior Manchester'", value=sel["search"])
 
         if st.button("🔄 Reset Filters"):
             st.session_state.filters = default_state.copy()
@@ -121,7 +121,8 @@ def best_per_class_and_lift(df: pd.DataFrame) -> pd.DataFrame:
 # ------------------------------------------------------------------
 def render_table(filtered, sel, key=""):
     show_all = bool(sel["search"])
-    table_data = filtered if show_all else best_per_class_and_lift(filtered)
+    data_source = filtered if show_all else filtered[filtered["Location"].str.strip() != ""]
+    table_data = data_source if show_all else best_per_class_and_lift(data_source)
 
     st.subheader(
         f"{'All Matches' if show_all else 'Top Records'} – "
@@ -222,7 +223,7 @@ def main():
     df = load_data(CSV_PATH)
     filtered, sel = render_filters(df)
 
-    tabs = st.tabs(["All Records", "Full Power", "Single Lifts"])
+    tabs = st.tabs(["All Records", "Full Power", "Single Lifts", "FAQ"])
 
     with tabs[0]:
         render_table(filtered, sel, key="all")
@@ -235,6 +236,25 @@ def main():
         mask = filtered["Record Type"].str.contains("Single|Bench Only|Deadlift Only", case=False, na=False)
         single_lifts = filtered[mask & filtered["Lift"].isin(["Bench", "Deadlift"])]
         render_table(single_lifts, sel, key="single")
+
+    with tabs[3]:
+        st.markdown("## ❓ Frequently Asked Questions")
+        st.markdown("""
+**Q: How often is this database updated?**  
+A: We update the records shortly after each WRPF UK sanctioned event.
+
+**Q: What does 'Drug Tested' mean?**  
+A: It refers to divisions where athletes are subject to in-competition testing.
+
+**Q: What is the difference between Raw and Equipped?**  
+A: 'Raw' means minimal supportive gear (like sleeves or wraps); 'Equipped' includes multi-ply suits and shirts.
+
+**Q: How can I get a record updated or corrected?**  
+A: Please contact [records@wrpf.uk](mailto:records@wrpf.uk) with evidence or questions.
+
+**Q: Can I filter by federation or region?**  
+A: Not currently, but we’re working on it!
+        """)
 
 if __name__ == "__main__":
     main()
