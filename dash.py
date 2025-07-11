@@ -34,6 +34,7 @@ def load_data(path: Path) -> pd.DataFrame:
     df["Testing"] = df["Division_raw"].str.endswith("DT").map({True: "Drug Tested", False: "Untested"})
     df["Lift"] = df["Lift"].replace(LIFT_MAP).fillna(df["Lift"])
     df["Date_parsed"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Location"] = df["Location"].astype(str).str.strip()  # Clean up renamed Location entries
     df.fillna("", inplace=True)
     return df
 
@@ -238,14 +239,16 @@ def main():
 
     with tabs[3]:
         st.markdown("## 📍 Records by Region")
-        location_counts = (
+        region_df = (
             filtered[filtered["Location"].str.strip() != ""]
             .groupby("Location")
             .size()
             .reset_index(name="Number of Records")
             .sort_values("Number of Records", ascending=False)
         )
-        st.dataframe(location_counts, use_container_width=True)
+
+        html = region_df.to_html(index=False, border=0, classes="records-table")
+        st.markdown(html, unsafe_allow_html=True)
 
     with tabs[4]:
         st.markdown("## ❓ Frequently Asked Questions")
