@@ -65,7 +65,7 @@ def render_filters(df: pd.DataFrame):
         sel["testing_status"] = cols[2].selectbox("Testing", ["All", "Drug Tested", "Untested"], index=0)
         sel["equipment"] = cols[3].selectbox("Equipment", ["All"] + equipment_display, index=0)
         sel["weight_class"] = cols[4].selectbox("Weight", ["All"] + weight_opts, index=0)
-        sel["search"] = cols[5].text_input("Search e.g. '110 junior Manchester'", value=sel["search"])
+        sel["search"] = cols[5].text_input("Search e.g. '110 junior'", value=sel["search"])
 
         if st.button("🔄 Reset Filters"):
             st.session_state.filters = default_state.copy()
