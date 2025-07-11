@@ -247,7 +247,7 @@ A: We update the records shortly after each WRPF UK sanctioned event.
 A: It refers to divisions where athletes are subject to in-competition testing.
 
 **Q: What is the difference between Raw, Sleeves, Wraps and Equipped?**  
-A: Raw applies only to single lift events and means no supportive equipment other than a belt and wrist wraps were worn. 
+A: Raw is single lfits only and means no supportive equipment other than a belt and wrist wraps were worn. 
 Sleeves is the division you fall under when wearing knee sleeves in a full power event. 
 Wraps are the same but you're wearing knee wraps and equipped is when you're wearing fully supportive suits.
 
